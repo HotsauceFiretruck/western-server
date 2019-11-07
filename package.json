@@ -1,0 +1,19 @@
+{
+  "name": "western-server",
+  "version": "1.0.0",
+  "description": "Server for https://github.com/HotsauceFiretruck/A-Western-Story",
+  "main": "index.js",
+  "scripts": {
+    "test": "wserver"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HotsauceFiretruck/western-server.git"
+  },
+  "author": "HotsauceFiretruck",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HotsauceFiretruck/western-server/issues"
+  },
+  "homepage": "https://github.com/HotsauceFiretruck/western-server#readme"
+}
