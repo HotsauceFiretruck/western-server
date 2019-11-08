@@ -1,9 +1,15 @@
 'use strict'
-const http = require('http')
-const app = require('./config')
-const Server = http.Server(app)
-const PORT = process.env.PORT || 8123
-const io = require('socket.io')(Server)
+const express = require('express');
+const socket = require('socket.io');
+
+const PORT = process.env.PORT || 8123;
+const INDEX = path.join(__dirname, 'index.html');
+
+const server = express()
+  .use((req, res) => res.sendFile(INDEX) )
+  .listen(PORT, () => console.log(`Listening on ${ PORT }`));
+
+const io = socket(server);
 
 Server.listen(PORT, () => console.log('Game server running on:', PORT))
 
