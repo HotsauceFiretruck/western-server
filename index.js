@@ -2,7 +2,7 @@
 const http = require('http')
 const app = require('./config')
 const Server = http.Server(app)
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 8123
 const io = require('socket.io')(Server)
 
 Server.listen(PORT, () => console.log('Game server running on:', PORT))
@@ -21,6 +21,10 @@ io.on('connection', socket => {
   socket.on('disconnect', state => {
     delete players[socket.id]
     io.emit('update-players', players)
+  })
+
+  socket.on('new-bullet', data => {
+    io.emit('send-bullet', data);
   })
 
   // When a player moves
