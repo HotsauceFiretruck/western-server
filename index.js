@@ -14,20 +14,56 @@ const players = {}
 
 io.on('connection', socket => {
   // When a player connects
-  socket.on('new-player', state => {
-    console.log('New player joined with state:', state)
+  socket.on('new_player', state => {
+    console.log('New player connecting with state:', state)
     players[socket.id] = state
+
     // Emit the update-players method in the client side
-    io.emit('update-players', players)
+    //io.emit('update-players', players)
+
+    //Give new players a spawn position
+    let randPos = getRandPos();
+    socket.emit('new_spawn', {
+      x: randPos.x,
+      y: randPos.y
+    });
+  })
+
+  //Give respawning players a spawn position
+  socket.on('respawn', () => {
+    let randPos = getRandPos()
+    socket.emit('new_spawn', {
+      x: randPos.x,
+      y: randPos.y
+    })
+  })
+
+  //Send client a player by id when they request it
+  socket.on('get_player', id => {
+    player = players[id]
+    socket.emit('player_info', {
+      x: player.x,
+      y: player.y,
+      name: player.name,
+      velocity: {
+          x: player.velocity.x,
+          y: player.velocity.y
+      }
+    })
+  })
+
+  socket.on('get_all_players', () => {
+    socket.emit('update-players', players);
   })
 
   socket.on('disconnect', state => {
     delete players[socket.id]
-    io.emit('update-players', players)
+    //io.emit('update-players', players)
   })
 
-  socket.on('new-bullet', data => {
-    io.emit('send-bullet', data);
+  //Send bullets being shot to all clients
+  socket.on('shoot_bullet', data => {
+    io.emit('new_bullet', data);
   })
 
   // When a player moves
@@ -54,3 +90,9 @@ io.on('connection', socket => {
     io.emit('update-players', players)
   })
 })
+
+function getRandPos() {
+  let positions = [{x: 600, y: 200}, {x: 90, y: 200}, {x: 580, y: 525}, {x: 1160, y: 240}, {x: 1090, y: 560}, {x: 850, y: 335}, {x: 160, y: 560}];
+  let random = Math.round(Math.random() * (positions.length-1));
+  return positions[random];
+}
