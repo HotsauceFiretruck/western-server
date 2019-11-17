@@ -15,11 +15,8 @@ const players = {}
 io.on('connection', socket => {
   // When a player connects
   socket.on('new_player', state => {
-    console.log('New player connecting with state:', state)
-    players[socket.id] = state
-
-    // Emit the update-players method in the client side
-    //io.emit('update-players', players)
+    console.log('New player connecting with state:', state);
+    players[socket.id] = state;
 
     //Give new players a spawn position
     let randPos = getRandPos();
@@ -27,6 +24,9 @@ io.on('connection', socket => {
       x: randPos.x,
       y: randPos.y
     });
+
+    // Emit the update-players method in the client side
+    io.emit('update_players', players);
   })
 
   //Give respawning players a spawn position
@@ -44,7 +44,7 @@ io.on('connection', socket => {
     socket.emit('player_info', {
       x: player.x,
       y: player.y,
-      name: player.name,
+      id: player.id,
       velocity: {
           x: player.velocity.x,
           y: player.velocity.y
@@ -53,12 +53,12 @@ io.on('connection', socket => {
   })
 
   socket.on('get_all_players', () => {
-    socket.emit('update-players', players);
+    socket.emit('update_players', players);
   })
 
   socket.on('disconnect', state => {
     delete players[socket.id]
-    //io.emit('update-players', players)
+    io.emit('update_players', players)
   })
 
   //Send bullets being shot to all clients
@@ -67,8 +67,8 @@ io.on('connection', socket => {
   })
 
   // When a player moves
-  socket.on('move-player', data => {
-    const { x, y, playerName, velocity } = data
+  socket.on('move_player', data => {
+    const { x, y, id, velocity } = data
 
     // If the player is invalid, return
     if (players[socket.id] === undefined) {
@@ -76,18 +76,18 @@ io.on('connection', socket => {
     }
 
     // Update the player's data if he moved
-    players[socket.id].x = x
-    players[socket.id].y = y
-    players[socket.id].playerName = {
-      name: playerName.name
-    }
-    players[socket.id].velocity = {
-      x: velocity.x,
-      y: velocity.y
-    }
+    if (players[socket.id].x !== x || players[socket.id].y !== y) {
+      players[socket.id].x = x
+      players[socket.id].y = y
+      players[socket.id].id = id
+      players[socket.id].velocity = {
+        x: velocity.x,
+        y: velocity.y
+      }
 
-    // Send the data back to the client
-    io.emit('update-players', players)
+      // Send the data back to the client
+      io.emit('update_player', players[socket.id]);
+    }
   })
 })
 
