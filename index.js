@@ -20,45 +20,40 @@ io.on('connection', socket => {
 
     //Give new players a spawn position
     let randPos = getRandPos();
+    players[socket.id].x = randPos.x;
+    players[socket.id].y = randPos.y;
     socket.emit('new_spawn', {
       x: randPos.x,
       y: randPos.y
     });
 
     // Emit the update-players method in the client side
-    io.emit('update_players', players);
+    io.emit('player_connect', state);
   })
 
   //Give respawning players a spawn position
   socket.on('respawn', () => {
     let randPos = getRandPos()
+    players[socket.id].x = randPos.x;
+    players[socket.id].y = randPos.y;
     socket.emit('new_spawn', {
       x: randPos.x,
       y: randPos.y
     })
+    io.emit('player_connect', players[socket.id])
   })
 
-  //Send client a player by id when they request it
-  socket.on('get_player', id => {
-    player = players[id]
-    socket.emit('player_info', {
-      x: player.x,
-      y: player.y,
-      id: player.id,
-      velocity: {
-          x: player.velocity.x,
-          y: player.velocity.y
-      }
-    })
+  socket.on('death', () => {
+    io.emit('player_disconnect', socket.id);
   })
 
   socket.on('get_all_players', () => {
-    socket.emit('update_players', players);
+    socket.emit('player_list', players);
   })
 
   socket.on('disconnect', state => {
     delete players[socket.id]
-    io.emit('update_players', players)
+    io.emit('player_disconnect', socket.id);
   })
 
   //Send bullets being shot to all clients
@@ -86,7 +81,7 @@ io.on('connection', socket => {
       }
 
       // Send the data back to the client
-      io.emit('update_player', players[socket.id]);
+      io.emit('update_player', data);
     }
   })
 })
