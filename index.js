@@ -21,7 +21,7 @@ io.on('connection', socket => {
     console.log(playerLength());
     if (playerLength() >= PLAYER_LIMIT) {
       console.log("Server is full disconnecting player:", socket.id);
-      socket.disconnect("server is full");
+      socket.disconnect();
       return;
     }
     players[socket.id] = state;
