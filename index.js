@@ -11,7 +11,7 @@ var app = express(),
 server.listen(process.env.PORT || 3000);
 
 const players = {};
-const PLAYER_LIMIT = 20;
+const PLAYER_LIMIT = 10;
 
 io.on('connection', socket => {
   // When a player connects
