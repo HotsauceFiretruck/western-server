@@ -10,12 +10,20 @@ var app = express(),
 
 server.listen(process.env.PORT || 3000);
 
-const players = {}
+const players = {};
+const PLAYER_LIMIT = 20;
 
 io.on('connection', socket => {
   // When a player connects
   socket.on('new_player', state => {
     console.log('New player connecting with state:', state);
+
+    console.log(playerLength());
+    if (playerLength() >= PLAYER_LIMIT) {
+      console.log("Server is full disconnecting player:", socket.id);
+      socket.disconnect("server is full");
+      return;
+    }
     players[socket.id] = state;
 
     //Give new players a spawn position
@@ -90,4 +98,14 @@ function getRandPos() {
   let positions = [{x: 600, y: 200}, {x: 90, y: 200}, {x: 580, y: 525}, {x: 1160, y: 240}, {x: 1090, y: 560}, {x: 850, y: 335}, {x: 160, y: 560}];
   let random = Math.round(Math.random() * (positions.length-1));
   return positions[random];
+}
+
+function playerLength() {
+  var length = 0;
+  for (var key in players) {
+    if (players.hasOwnProperty(key)){
+      length++;
+    }
+  }
+  return length;
 }
