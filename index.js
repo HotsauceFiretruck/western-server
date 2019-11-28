@@ -21,7 +21,7 @@ io.on('connection', socket => {
     console.log(playerLength());
     if (playerLength() >= PLAYER_LIMIT) {
       console.log("Server is full disconnecting player:", socket.id);
-      socket.disconnect("server is full");
+      socket.disconnect();
       return;
     }
     players[socket.id] = state;
@@ -40,14 +40,16 @@ io.on('connection', socket => {
   })
 
   //Give respawning players a spawn position
-  socket.on('respawn', () => {
-    let randPos = getRandPos()
-    players[socket.id].x = randPos.x;
-    players[socket.id].y = randPos.y;
-    socket.emit('new_spawn', {
-      x: randPos.x,
-      y: randPos.y
-    })
+  socket.on('respawn', data => {
+    if (data !== "unpause") {
+      let randPos = getRandPos()
+      players[socket.id].x = randPos.x;
+      players[socket.id].y = randPos.y;
+      socket.emit('new_spawn', {
+        x: randPos.x,
+        y: randPos.y
+      })
+    }
     io.emit('player_connect', players[socket.id])
   })
 
