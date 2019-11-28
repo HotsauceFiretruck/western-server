@@ -40,14 +40,16 @@ io.on('connection', socket => {
   })
 
   //Give respawning players a spawn position
-  socket.on('respawn', () => {
-    let randPos = getRandPos()
-    players[socket.id].x = randPos.x;
-    players[socket.id].y = randPos.y;
-    socket.emit('new_spawn', {
-      x: randPos.x,
-      y: randPos.y
-    })
+  socket.on('respawn', data => {
+    if (data !== "unpause") {
+      let randPos = getRandPos()
+      players[socket.id].x = randPos.x;
+      players[socket.id].y = randPos.y;
+      socket.emit('new_spawn', {
+        x: randPos.x,
+        y: randPos.y
+      })
+    }
     io.emit('player_connect', players[socket.id])
   })
 
