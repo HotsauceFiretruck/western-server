@@ -3,6 +3,7 @@ const express = require('express');
 const socket = require('socket.io');
 const http = require('http');
 
+const CountDownTimer = require('./utils/countdowntimer/CountDownTimer.js')
 
 var app = express(),
   server = http.createServer(app),
@@ -12,6 +13,7 @@ server.listen(process.env.PORT || 3000);
 
 const players = {};
 const PLAYER_LIMIT = 10;
+const PLAYER_TIMEOUT = 15;
 
 io.on('connection', socket => {
   // When a player connects
@@ -26,7 +28,7 @@ io.on('connection', socket => {
     }
     players[socket.id] = state;
 
-    //Give new players a spawn position
+    // Give new players a spawn position
     let randPos = getRandPos();
     players[socket.id].x = randPos.x;
     players[socket.id].y = randPos.y;
@@ -73,7 +75,7 @@ io.on('connection', socket => {
 
   // When a player moves
   socket.on('move_player', data => {
-    const { x, y, id, velocity } = data
+    const { x, y, id, velocity, gun } = data
 
     // If the player is invalid, return
     if (players[socket.id] === undefined) {
@@ -89,7 +91,12 @@ io.on('connection', socket => {
         x: velocity.x,
         y: velocity.y
       }
-
+      players[socket.id].gun = {
+        x: gun.x,
+        y: gun.y,
+        rotation: gun.rotation
+      }
+      
       // Send the data back to the client
       io.emit('update_player', data);
     }
